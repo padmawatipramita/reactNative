@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, StatusBar, Image, TouchableOpacity, FlatList, ActivityIndicator} from 'react-native';
 import axios from 'axios';
 import { PostItem } from '../../interfaces';
@@ -11,6 +11,10 @@ import { RootStackParamList} from '../navigation/RootStackParamList';
 
 const HomeScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'HomeScreen'>>();
+    const Post = useSelector((state: RootState) => state.post);
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+
     useEffect(() =>{
         Posts();
     }, [])
@@ -25,11 +29,6 @@ const HomeScreen = () => {
         navigation.navigate("FavScreen")
     }
 
-
-    const Post = useSelector((state: RootState) => state.post);
-    const [loading, setLoading] = useState(false);
-    const dispatch = useDispatch();
-
     const Posts = async () =>{
         try{
             setLoading(true);
@@ -43,46 +42,37 @@ const HomeScreen = () => {
         }
     }
 
-
     return (
-        <View style={{backgroundColor:'#f8bbd0'}}>
-            <StatusBar barStyle="light-content" backgroundColor={"#880e4f"}/>
+        <View style={styles.base}>
+            <StatusBar barStyle="light-content" backgroundColor={"#3700b3"}/>
             <View style={styles.header}>
-                <Text style={{fontWeight: 'bold', fontSize: 20, color: '#3e2723'}}>HomeScreen</Text>
+                <Text style={styles.textHeader}>Home</Text>
                 <TouchableOpacity onPress={navigateFavScreen}>
-                <Image 
-                  source={{uri: 'https://www.freeiconspng.com/uploads/love-icon-15.png'}}
-                  style={{width:60, height:60}}
-                />
+                    <Image source={require('./../image/heart.png')} style={{width: 80, height:60}}/>
                 </TouchableOpacity>
             </View>
-            <View>
+            <View style={{marginBottom: 75}}>
                 {
                     loading?(
                         <View>
                             <ActivityIndicator size="large" color="#880e4f"/>
                         </View>
-                    ):(
+                    ):(        
                         <FlatList
                             style={styles.itemContainer}
                             numColumns={2}
                             data = {Post.posts}
                             renderItem={({item}) => (
-                            <View>
-                                <TouchableOpacity 
-                                    style={styles.product} 
-                                    onPress={() => navigateDetailScreen(item.id)}
-                                >
+                            <View style={{marginBottom:10}}>
+                                <TouchableOpacity style={styles.product} onPress={() => navigateDetailScreen(item.id)}>
                                     <Image source={{uri: item.image}} style={styles.img}/>
                                     <Text style={styles.productTitle} numberOfLines={2} ellipsizeMode={'tail'}>{item.title}</Text>
                                     <Text style={styles.productPrice} numberOfLines={1} ellipsizeMode={'tail'}>${item.price}</Text>
                                 </TouchableOpacity>
                             </View>
-                        )}
-                        
-                    />
-                    )
-                }
+                            )}
+                        />
+                    )}
             </View>
         </View>
     )
@@ -91,33 +81,41 @@ const HomeScreen = () => {
 export default HomeScreen;
 
 const styles =  StyleSheet.create({
-  header:{
-        display:'flex',
+    base:{
+        backgroundColor:'#FFFFFF',
+        flex: 1
+    },
+    header:{
         flexDirection:'row',
-        paddingVertical: 8,
-        backgroundColor: '#f8bbd0',
+        paddingVertical: 2,
+        backgroundColor: '#6200EE',
         paddingHorizontal: 25,
         justifyContent: 'space-between',
         alignItems: 'center'
     },
-    itemContainer: {
+    textHeader:{
+        fontWeight: 'bold', 
+        fontSize: 20, 
+        color: 'white'
+    },
+    itemContainer:{
         padding: 10,
-        display: 'flex',
     },
     product:{
         justifyContent: 'center',
         alignItems:'center',
-        backgroundColor: '#f5f5f5', 
-        borderRadius: 12,  
+        backgroundColor: '#FFFFFF', 
+        borderRadius: 8,  
         width: 150,
-        padding:10,
-        height:165,
-        resizeMode: 'cover',
-        margin: 10,
+        padding: 10,
+        elevation: 10,
+        height: 165,
+        marginLeft: 10,
+        marginRight: 10,
         marginTop: 0,
-        elevation: 5,
+        marginBottom: 0,
         borderWidth: 1,
-        borderColor: '#C9CCD5'
+        borderColor: '#C9CCD5',
     },
     img:{
         width: 145, 
@@ -127,14 +125,11 @@ const styles =  StyleSheet.create({
     productTitle:{
         width:'100%',
         textAlign: 'left',
-        resizeMode: 'contain',
         color: '#171010'
     },
     productPrice:{
-        paddingTop:3,
-        textAlign: 'left',
+        width:'100%',
         color: '#171010',
         fontWeight: 'bold'
     }
 })
-

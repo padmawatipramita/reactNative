@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/core'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator} from 'react-native'
@@ -7,38 +8,30 @@ import { PostItem } from '../../interfaces'
 import { RootStackParamList} from '../navigation/RootStackParamList'
 import { RootState } from '../store'
 import Fav, { addFav, deleteFav} from '../store/Fav'
+import { useNavigation } from '@react-navigation/core';
 
 
 const DetailScreen = () => {
     useEffect(() =>{
         Posts();
     }, [])
+
     const route = useRoute<RouteProp<RootStackParamList, 'DetailScreen'>>();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'DetailScreen'>>();
     const [loading, setLoading] = useState(false);
     const {id} = route.params;
+    const Fav = useSelector((state: RootState) => state.fav);
     const dispatch = useDispatch();
+    
     const [product, setProduct] = useState<any>({
         item: null
       });
-
-    const addFavorite = () => {
-        
-    }
-
-     const removeFavorite = () => {
-        
-      
-    }
-    const Fav = useSelector((state: RootState) => state.fav);
-
+    
     const isFavourite = (item:PostItem) =>{
         const index = Fav.fav.findIndex(favs => favs.id === item.id);
         if (index != -1) return true
         else return false   
     }
-    
-    
-
     const Posts = async () =>{
         try{
             setLoading(true);
@@ -51,7 +44,6 @@ const DetailScreen = () => {
             setLoading(false);
         }
     }
-
     if(loading){
          return (
              <View>
@@ -60,34 +52,35 @@ const DetailScreen = () => {
          )
     }
     return(
-        
          <View style={styles.base}>
-             <View style={styles.imageContainer}> 
-                  <Image source={{uri: product.image}} style={styles.img}/>
-              </View>   
-                   <ScrollView>
-                      <View style={styles.paddingView}>
-                          <Text style={styles.price}>${product.price}</Text>
-                          <Text style={styles.text}>{product.title}</Text>  
-                      </View>
-                      <View style={{paddingHorizontal: 20}}>    
-                          <Text style={styles.description}>{product.description}</Text>
-                      </View>
-                  </ScrollView>
-                
-                   <View style={styles.buttonView}>
-                        {
-                            isFavourite(product) ? 
-                                <TouchableOpacity style={styles.button} onPress={()=> dispatch(deleteFav(product))}>
-                                    <Text style={{color:'white', fontWeight: 'bold', letterSpacing: 1.5}}>Remove from Favorite     &#x2661;</Text>
-                                </TouchableOpacity> 
-                            :  
+            <View style={styles.imageContainer}>
+                <TouchableOpacity style={styles.arrowNav} onPress={() => { navigation.navigate("HomeScreen")}}>
+                    <Image source={{uri:'https://freepikpsd.com/file/2019/10/arrow-left-png-6-Transparent-Images.png'}} style={styles.arrowImg}/> 
+                </TouchableOpacity>
+                <Image source={{uri: product.image}} style={styles.img}/> 
+            </View>  
+            <ScrollView>
+                <View style={styles.paddingView}>
+                    <Text style={styles.price}>${product.price}</Text>
+                    <Text style={styles.text}>{product.title}</Text>  
+                </View>
+                <View style={{paddingHorizontal: 20}}>    
+                    <Text style={styles.description}>{product.description}</Text>
+                </View>
+            </ScrollView>   
+                <View style={styles.buttonView}>
+                    {
+                        isFavourite(product) ? 
+                            <TouchableOpacity style={styles.button} onPress={()=> dispatch(deleteFav(product))}>
+                                <Text style={styles.texButton}>Remove from Favorite     &#x2661;</Text>
+                            </TouchableOpacity> 
+                        :  
                             <TouchableOpacity style={styles.button} onPress={()=> dispatch(addFav(product))}>
-                                <Text style={{color:'white', fontWeight: 'bold', letterSpacing: 1.5}}>Add to Favorite     &#x2661;</Text>
+                                <Text style={styles.texButton}>Add to Favorite     &#x2661;</Text>
                             </TouchableOpacity>
-                        }
-                  </View> 
-          </View>                
+                    }
+                </View> 
+        </View>                
     )
 }
 
@@ -96,12 +89,17 @@ export default DetailScreen
 const styles =  StyleSheet.create({
     itemContainer: {
         padding: 10,
-        display: 'flex',
     },
     base:{
-        display: "flex",
         flex: 1,
-        backgroundColor: '#f8bbd0'
+        backgroundColor: 'white'
+    },
+    arrowNav:{
+        marginLeft: -300
+    },
+    arrowImg:{
+        width: 35, 
+        height: 28
     },
     img:{
         width: 300, 
@@ -111,11 +109,7 @@ const styles =  StyleSheet.create({
     imageContainer:{
         alignItems: 'center', 
         justifyContent: 'center',
-        borderBottomLeftRadius: 60,
-        borderBottomRightRadius: 60,
-        backgroundColor: 'white',
         height: 400,
-        elevation: 20
     },
     paddingView:{
         paddingHorizontal: 20,
@@ -124,25 +118,30 @@ const styles =  StyleSheet.create({
     text:{
         fontWeight: '600',
         fontSize: 15,  
-        color:'#171010',
+        color:'black',
         paddingTop: 8
     },
     price:{
         fontWeight: 'bold',
         fontSize: 25, 
-        color: "#171010"
+        color:'black',
     },
     description:{
         textAlign: 'justify',
         fontSize: 15,
-        lineHeight: 18
+        lineHeight: 18,
+        color:'black',
     },
-
     button: {
         alignItems: "center",
-        backgroundColor: "#880e4f",
+        backgroundColor: "#6200EE",
         padding: 15,
         borderRadius: 30
+    },
+    texButton:{
+        color:'white', 
+        fontWeight: 'bold', 
+        letterSpacing: 1.5
     },
     buttonView:{
         paddingBottom: 15,
@@ -150,4 +149,3 @@ const styles =  StyleSheet.create({
         paddingHorizontal: 25
     }
 })
-  
